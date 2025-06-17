@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glazing Project Estimation Form</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font and general body styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            padding: 20px;
+        }
+        /* Style for form sections */
+        .form-section {
+            background-color: #ffffff;
+            padding: 24px;
+            margin-bottom: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        /* Style for section titles */
+        .section-title {
+            font-size: 1.75rem; /* 28px */
+            font-weight: 700; /* bold */
+            color: #1f2937;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        /* Style for subsections */
+        .subsection-title {
+            font-size: 1.25rem; /* 20px */
+            font-weight: 600; /* semi-bold */
+            color: #374151;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+        /* Style for labels */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500; /* medium */
+            color: #374151;
+        }
+        /* Style for input fields and textareas */
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        input[type="time"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            color: #4b5563;
+            background-color: #f9fafb;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        input[type="date"]:focus,
+        input[type="time"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            outline: none;
+        }
+        /* Style for checkboxes and radio buttons */
+        input[type="checkbox"],
+        input[type="radio"] {
+            margin-right: 8px;
+            transform: scale(1.1);
+        }
+        /* Specific styling for 'Yes/No' radio groups */
+        .radio-group label {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 20px;
+            font-weight: normal;
+        }
+        /* Styling for LLM generated content */
+        #scopeSummaryOutput {
+            background-color: #e0f2fe; /* Light blue background */
+            border-left: 5px solid #38b2ac; /* Teal border on left */
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            color: #1a202c;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            word-wrap: break-word; /* Break long words */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-top: 15px;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-4xl mx-auto p-4 bg-gray-100 rounded-lg shadow-xl">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8 pb-4 border-b-4 border-blue-500 rounded-lg">Glazing Project Estimation Form</h1>
+
+        <form id="estimationForm">
+            <!-- I. Project Identification & General Information -->
+            <div class="form-section">
+                <h2 class="section-title">I. Project Identification & General Information</h2>
+                <div class="mb-4">
+                    <label for="projectName">Project Name:</label>
+                    <input type="text" id="projectName" name="projectName" class="rounded-lg" placeholder="Enter Full Project Name">
+                </div>
+
+                <div class="mb-4">
+                    <label>Project Address:</label>
+                    <input type="text" id="projectStreet" name="projectStreet" class="rounded-lg mb-2" placeholder="Street">
+                    <input type="text" id="projectCity" name="projectCity" class="rounded-lg mb-2" placeholder="City">
+                    <input type="text" id="projectState" name="projectState" class="rounded-lg mb-2" placeholder="State/Province">
+                    <input type="text" id="projectZip" name="projectZip" class="rounded-lg mb-2" placeholder="ZIP/Postal Code">
+                    <input type="text" id="projectCountry" name="projectCountry" class="rounded-lg" placeholder="Country">
+                </div>
+
+                <div class="mb-4">
+                    <label for="projectType">Project Type:</label>
+                    <select id="projectType" name="projectType" class="rounded-lg">
+                        <option value="">Select Type</option>
+                        <option value="Commercial">Commercial</option>
+                        <option value="Residential">Residential</option>
+                        <option value="Renovation">Renovation</option>
+                        <option value="New Construction">New Construction</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="buildingType">Building Type:</label>
+                    <select id="buildingType" name="buildingType" class="rounded-lg">
+                        <option value="">Select Type</option>
+                        <option value="Office Building">Office Building</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Education">Education</option>
+                        <option value="Multi-family Residential">Multi-family Residential</option>
+                        <option value="Industrial">Industrial</option>
+                        <option value="Hospitality">Hospitality</option>
+                        <option value="Cultural/Civic">Cultural/Civic</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label>Architect/Designer:</label>
+                    <input type="text" id="architectCompany" name="architectCompany" class="rounded-lg mb-2" placeholder="Company Name">
+                    <input type="text" id="architectContact" name="architectContact" class="rounded-lg mb-2" placeholder="Contact Person">
+                    <input type="email" id="architectEmail" name="architectEmail" class="rounded-lg mb-2" placeholder="Email">
+                    <input type="tel" id="architectPhone" name="architectPhone" class="rounded-lg" placeholder="Phone">
+                </div>
+            </div>
+
+            <!-- II. General Contractor Information -->
+            <div class="form-section">
+                <h2 class="section-title">II. General Contractor Information</h2>
+                <div class="mb-4">
+                    <label for="gcCompany">Requesting GC Company Name:</label>
+                    <input type="text" id="gcCompany" name="gcCompany" class="rounded-lg" placeholder="Enter GC Company Name">
+                </div>
+                <div class="mb-4">
+                    <label for="gcContact">GC Contact Person:</label>
+                    <input type="text" id="gcContact" name="gcContact" class="rounded-lg" placeholder="Enter GC Contact Name">
+                </div>
+                <div class="mb-4">
+                    <label for="gcEmail">GC Email:</label>
+                    <input type="email" id="gcEmail" name="gcEmail" class="rounded-lg" placeholder="Enter GC Email">
+                </div>
+                <div class="mb-4">
+                    <label for="gcPhone">GC Phone:</label>
+                    <input type="tel" id="gcPhone" name="gcPhone" class="rounded-lg" placeholder="Enter GC Phone">
+                </div>
+                <div class="mb-4">
+                    <label for="gcBidPackage">GC Bid Package Number (if applicable):</label>
+                    <input type="text" id="gcBidPackage" name="gcBidPackage" class="rounded-lg" placeholder="Enter Bid Package #">
+                </div>
+            </div>
+
+            <!-- III. Bid Details -->
+            <div class="form-section">
+                <h2 class="section-title">III. Bid Details</h2>
+                <div class="mb-4">
+                    <label for="bidReceivedDate">Date Bid Package Received:</label>
+                    <input type="date" id="bidReceivedDate" name="bidReceivedDate" class="rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="bidDueDate">Bid Due Date:</label>
+                    <input type="date" id="bidDueDate" name="bidDueDate" class="rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="bidDueTime">Bid Due Time:</label>
+                    <input type="time" id="bidDueTime" name="bidDueTime" class="rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="bidDeliveryMethod">Bid Delivery Method:</label>
+                    <select id="bidDeliveryMethod" name="bidDeliveryMethod" class="rounded-lg">
+                        <option value="">Select Method</option>
+                        <option value="Email">Email</option>
+                        <option value="Online Portal">Online Portal</option>
+                        <option value="Hard Copy">Hard Copy</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label>Pre-bid Meeting Required/Attended?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="prebidMeeting" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="prebidMeeting" value="No" class="rounded-full"> No</label>
+                    </div>
+                    <input type="datetime-local" id="prebidDateTime" name="prebidDateTime" class="rounded-lg mt-2" placeholder="Date/Time if Yes">
+                </div>
+
+                <div class="mb-4">
+                    <label>Site Visit Required/Completed?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="siteVisit" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="siteVisit" value="No" class="rounded-full"> No</label>
+                    </div>
+                    <input type="datetime-local" id="siteVisitDateTime" name="siteVisitDateTime" class="rounded-lg mt-2" placeholder="Date/Time if Yes">
+                </div>
+
+                <div class="mb-4">
+                    <label for="addendaReceived">Addenda Received? (List all numbers and dates, e.g., A1-MM/DD/YYYY, A2-MM/DD/YYYY)</label>
+                    <textarea id="addendaReceived" name="addendaReceived" rows="3" class="rounded-lg" placeholder="e.g., Addendum #1 - 01/15/2025, Addendum #2 - 01/20/2025"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label>Tax Exempt?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="taxExempt" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="taxExempt" value="No" class="rounded-full"> No</label>
+                    </div>
+                    <div class="mt-2">
+                        <label>If Yes, Tax Exempt Certificate Provided?</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="taxCertProvided" value="Yes" class="rounded-full"> Yes</label>
+                            <label><input type="radio" name="taxCertProvided" value="No" class="rounded-full"> No</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IV. Scope of Work & System Specifications -->
+            <div class="form-section">
+                <h2 class="section-title">IV. Scope of Work & System Specifications</h2>
+
+                <h3 class="subsection-title">A. Overall Project Requirements</h3>
+                <div class="mb-4">
+                    <label>Project Specifications & Blueprints Reviewed?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="specsBlueprintsReviewed" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="specsBlueprintsReviewed" value="No" class="rounded-full"> No</label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label>Drawings Reviewed (Shop Drawings, Plan Views, Elevations, Details)?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="drawingsReviewed" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="drawingsReviewed" value="No" class="rounded-full"> No</label>
+                    </div>
+                    <div class="mt-2 pl-4">
+                        <label><input type="checkbox" name="drawingDetailsCorrect" class="rounded"> Are job-specific details correct?</label>
+                        <label><input type="checkbox" name="systemFinishCorrect" class="rounded"> Are system and finish information correct?</label>
+                        <label><input type="checkbox" name="glassTypesCorrect" class="rounded"> Are glass types correctly shown and labeled?</label>
+                        <label><input type="checkbox" name="dimensionsVerified" class="rounded"> Are dimensions verified/correct with architectural drawings?</label>
+                        <label><input type="checkbox" name="jointSizesCorrect" class="rounded"> Are joint sizes correct/adequate for job conditions?</label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="projectedStartDate">Projected Start Date:</label>
+                    <input type="date" id="projectedStartDate" name="projectedStartDate" class="rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="projectedCompletionDate">Projected Completion Date:</label>
+                    <input type="date" id="projectedCompletionDate" name="projectedCompletionDate" class="rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="accessToBuilding">Access to Building/Site:</label>
+                    <input type="text" id="accessToBuilding" name="accessToBuilding" class="rounded-lg" placeholder="e.g., Clear access, restricted hours, specific entry points">
+                </div>
+                <div class="mb-4">
+                    <label>Staging Area Availability?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="stagingArea" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="stagingArea" value="No" class="rounded-full"> No</label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="safetyRequirements">Safety Requirements/Plans:</label>
+                    <textarea id="safetyRequirements" name="safetyRequirements" rows="2" class="rounded-lg" placeholder="e.g., OSHA, specific site safety plans, fall protection"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="specialEquipment">Special Equipment Needs:</label>
+                    <textarea id="specialEquipment" name="specialEquipment" rows="2" class="rounded-lg" placeholder="e.g., Scaffolding, lifts, cranes – provided by GC or Glazier?"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="wasteManagement">Waste Management/Disposal:</label>
+                    <input type="text" id="wasteManagement" name="wasteManagement" class="rounded-lg" placeholder="By GC or Glazier?">
+                </div>
+
+                <h3 class="subsection-title">B. Storefront Systems</h3>
+                <div class="mb-4">
+                    <label for="sfSystemType">System Type:</label>
+                    <input type="text" id="sfSystemType" name="sfSystemType" class="rounded-lg" placeholder="e.g., Standard Stick-Built, Thermal Break, Non-Thermal, Impact Rated">
+                </div>
+                <div class="mb-4">
+                    <label for="sfManufacturer">Manufacturer/Series:</label>
+                    <input type="text" id="sfManufacturer" name="sfManufacturer" class="rounded-lg" placeholder="e.g., Kawneer 451T, Oldcastle 400 Series">
+                </div>
+                <div class="mb-4">
+                    <label for="sfFrameMaterial">Frame Material:</label>
+                    <select id="sfFrameMaterial" name="sfFrameMaterial" class="rounded-lg">
+                        <option value="">Select Material</option>
+                        <option value="Aluminum">Aluminum</option>
+                        <option value="Steel">Steel</option>
+                        <option value="Wood">Wood</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="sfFinishType">Finish Type:</label>
+                    <input type="text" id="sfFinishType" name="sfFinishType" class="rounded-lg" placeholder="e.g., Anodized (Clear/Bronze/Black), Painted (Kynar 500 / AAMA 2605 / Powder Coat), Mill">
+                    <input type="text" id="sfFinishClass" name="sfFinishClass" class="rounded-lg mt-2" placeholder="If Anodized, Class (e.g., Class I, Class II)">
+                    <input type="text" id="sfFinishColor" name="sfFinishColor" class="rounded-lg mt-2" placeholder="Color">
+                </div>
+                <div class="mb-4">
+                    <label>Glass Type (Exterior Storefront):</label>
+                    <input type="text" id="sfExtGlassType" name="sfExtGlassType" class="rounded-lg mb-2" placeholder="e.g., Insulated, Laminated, Tempered, Low-E, Spandrel">
+                    <input type="text" id="sfExtGlassThickness" name="sfExtGlassThickness" class="rounded-lg mb-2" placeholder="Thickness">
+                    <input type="text" id="sfExtGlassColor" name="sfExtGlassColor" class="rounded-lg mb-2" placeholder="Color/Tint">
+                    <input type="text" id="sfExtGlassLowE" name="sfExtGlassLowE" class="rounded-lg mb-2" placeholder="Low-E Coating Type (e.g., 70/36, 180)">
+                    <input type="text" id="sfExtGlassInterlayer" name="sfExtGlassInterlayer" class="rounded-lg" placeholder="Interlayer (for laminated, e.g., PVB, SGP)">
+                </div>
+                <div class="mb-4">
+                    <label>Glass Type (Interior Storefront, if applicable):</label>
+                    <input type="text" id="sfIntGlassThickness" name="sfIntGlassThickness" class="rounded-lg mb-2" placeholder="Thickness">
+                    <input type="text" id="sfIntGlassType" name="sfIntGlassType" class="rounded-lg" placeholder="Type (e.g., Annealed, Tempered, Laminated)">
+                </div>
+                <div class="mb-4">
+                    <label for="sfAcousticReq">Acoustic Requirements (STC/OITC):</label>
+                    <input type="text" id="sfAcousticReq" name="sfAcousticReq" class="rounded-lg" placeholder="Specify values if applicable">
+                </div>
+                <div class="mb-4">
+                    <label for="sfEnergyEfficiency">Energy Efficiency Requirements (U-Value/SHGC):</label>
+                    <input type="text" id="sfEnergyEfficiency" name="sfEnergyEfficiency" class="rounded-lg" placeholder="Specify values if applicable">
+                </div>
+                <div class="mb-4">
+                    <label for="sfHardware">Hardware:</label>
+                    <input type="text" id="sfHardware" name="sfHardware" class="rounded-lg" placeholder="e.g., Closers, Push/Pulls, Panic Devices, Locks, Hinges">
+                    <label class="mt-2"><input type="checkbox" name="sfHardwareScheduleReviewed" class="rounded"> Hardware Schedule Reviewed?</label>
+                    <label class="mt-2"><input type="checkbox" name="sfAccessControlIntegration" class="rounded"> Access Control Integration?</label>
+                </div>
+                <div class="mb-4">
+                    <label for="sfJointSealantType">Joint Sealant Type:</label>
+                    <input type="text" id="sfJointSealantType" name="sfJointSealantType" class="rounded-lg" placeholder="e.g., Silicone, Urethane">
+                    <input type="text" id="sfJointSealantColor" name="sfJointSealantColor" class="rounded-lg mt-2" placeholder="Color">
+                    <label class="mt-2"><input type="checkbox" name="sfJointSizesVerified" class="rounded"> Joint Sizes Verified?</label>
+                </div>
+                <div class="mb-4">
+                    <label><input type="checkbox" name="sfSubSillsFlashings" class="rounded"> Sub-sills/Flashings Required?</label>
+                </div>
+                <div class="mb-4">
+                    <label><input type="checkbox" name="sfBackPansInsulation" class="rounded"> Back Pans/Curtain Wall Insulation Required?</label>
+                </div>
+
+                <h3 class="subsection-title">C. Curtain Wall Systems</h3>
+                <div class="mb-4">
+                    <label for="cwSystemType">System Type:</label>
+                    <input type="text" id="cwSystemType" name="cwSystemType" class="rounded-lg" placeholder="e.g., Stick-Built, Unitized, Semi-Unitized, Structural Glazing, Point-Supported, Cable Net, Glass Fin">
+                </div>
+                <div class="mb-4">
+                    <label for="cwManufacturer">Manufacturer/Series:</label>
+                    <input type="text" id="cwManufacturer" name="cwManufacturer" class="rounded-lg" placeholder="Specify Manufacturer and Series">
+                </div>
+                <div class="mb-4">
+                    <label for="cwFrameMaterial">Frame Material:</label>
+                    <select id="cwFrameMaterial" name="cwFrameMaterial" class="rounded-lg">
+                        <option value="">Select Material</option>
+                        <option value="Aluminum">Aluminum</option>
+                        <option value="Steel">Steel</option>
+                        <option value="Timber">Timber</option>
+                        <option value="Terracotta">Terracotta</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="cwFinishType">Finish Type:</label>
+                    <input type="text" id="cwFinishType" name="cwFinishType" class="rounded-lg" placeholder="e.g., Anodized (Clear/Bronze/Black), Painted (Kynar 500 / AAMA 2605 / Powder Coat), Mill">
+                    <input type="text" id="cwFinishClass" name="cwFinishClass" class="rounded-lg mt-2" placeholder="If Anodized, Class (e.g., Class I, Class II)">
+                    <input type="text" id="cwFinishColor" name="cwFinishColor" class="rounded-lg mt-2" placeholder="Color">
+                </div>
+                <div class="mb-4">
+                    <label>Glass Type (Exterior Curtain Wall):</label>
+                    <input type="text" id="cwExtGlassType" name="cwExtGlassType" class="rounded-lg mb-2" placeholder="e.g., Insulated, Laminated, Tempered, Low-E, Triple Glazed, Fritted, Spandrel, Photovoltaic">
+                    <input type="text" id="cwExtGlassThickness" name="cwExtGlassThickness" class="rounded-lg mb-2" placeholder="Thickness">
+                    <input type="text" id="cwExtGlassColor" name="cwExtGlassColor" class="rounded-lg mb-2" placeholder="Color/Tint">
+                    <input type="text" id="cwExtGlassLowE" name="cwExtGlassLowE" class="rounded-lg mb-2" placeholder="Low-E Coating Type">
+                    <input type="text" id="cwExtGlassInterlayer" name="cwExtGlassInterlayer" class="rounded-lg" placeholder="Interlayer (for laminated)">
+                </div>
+                <div class="mb-4">
+                    <label>Glass Type (Interior Curtain Wall, if applicable):</label>
+                    <input type="text" id="cwIntGlassThickness" name="cwIntGlassThickness" class="rounded-lg mb-2" placeholder="Thickness">
+                    <input type="text" id="cwIntGlassType" name="cwIntGlassType" class="rounded-lg" placeholder="Type (e.g., Annealed, Tempered, Laminated)">
+                </div>
+                <div class="mb-4">
+                    <label for="cwAcousticReq">Acoustic Requirements (STC/OITC):</label>
+                    <input type="text" id="cwAcousticReq" name="cwAcousticReq" class="rounded-lg" placeholder="Specify values if applicable">
+                </div>
+                <div class="mb-4">
+                    <label for="cwEnergyEfficiency">Energy Efficiency Requirements (U-Value/SHGC):</label>
+                    <input type="text" id="cwEnergyEfficiency" name="cwEnergyEfficiency" class="rounded-lg" placeholder="Specify values if applicable">
+                </div>
+                <div class="mb-4">
+                    <label for="cwSealantType">Sealant Type:</label>
+                    <input type="text" id="cwSealantType" name="cwSealantType" class="rounded-lg" placeholder="e.g., Structural Silicone, Weather Seal Silicone, Urethane">
+                    <input type="text" id="cwSealantColor" name="cwSealantColor" class="rounded-lg mt-2" placeholder="Color">
+                    <label class="mt-2"><input type="checkbox" name="cwJointSizesVerified" class="rounded"> Joint Sizes Verified?</label>
+                </div>
+                <div class="mb-4">
+                    <label for="cwDrainage">Drainage Capabilities:</label>
+                    <input type="text" id="cwDrainage" name="cwDrainage" class="rounded-lg" placeholder="e.g., Weep systems, pressure equalization">
+                </div>
+                <div class="mb-4">
+                    <label><input type="checkbox" name="cwFireSafing" class="rounded"> Fire Safing/Floor Line Items?</label>
+                </div>
+                <div class="mb-4">
+                    <label for="cwMovementJoints">Building Movement/Expansion Joints (Consideration/Details):</label>
+                    <textarea id="cwMovementJoints" name="cwMovementJoints" rows="2" class="rounded-lg" placeholder="Details"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label><input type="checkbox" name="cwBackPansInsulation" class="rounded"> Back Pans/Curtain Wall Insulation?</label>
+                </div>
+
+                <h3 class="subsection-title">D. Storefront Doors (Part of Storefront System or Standalone)</h3>
+                <div class="mb-4">
+                    <label for="doorType">Door Type:</label>
+                    <input type="text" id="doorType" name="doorType" class="rounded-lg" placeholder="e.g., Single, Double, Bi-fold, Sliding, Automatic, Revolving">
+                </div>
+                <div class="mb-4">
+                    <label for="doorFrameMaterial">Frame Material:</label>
+                    <select id="doorFrameMaterial" name="doorFrameMaterial" class="rounded-lg">
+                        <option value="">Select Material</option>
+                        <option value="Aluminum">Aluminum</option>
+                        <option value="Steel">Steel</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="doorStileRailSize">Stile/Rail Size:</label>
+                    <input type="text" id="doorStileRailSize" name="doorStileRailSize" class="rounded-lg" placeholder="e.g., Narrow, Medium, Wide">
+                </div>
+                <div class="mb-4">
+                    <label for="doorFinishType">Finish Type:</label>
+                    <input type="text" id="doorFinishType" name="doorFinishType" class="rounded-lg" placeholder="Matches storefront or different?">
+                    <input type="text" id="doorFinishColor" name="doorFinishColor" class="rounded-lg mt-2" placeholder="Color">
+                </div>
+                <div class="mb-4">
+                    <label>Glass Type (Door):</label>
+                    <input type="text" id="doorGlassThickness" name="doorGlassThickness" class="rounded-lg mb-2" placeholder="Thickness">
+                    <input type="text" id="doorGlassType" name="doorGlassType" class="rounded-lg" placeholder="Type (e.g., Tempered, Laminated, Insulated)">
+                </div>
+                <div class="mb-4">
+                    <label>Hardware Schedule by Door Mark (Reviewed for each door)?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="doorHardwareScheduleReviewed" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="doorHardwareScheduleReviewed" value="No" class="rounded-full"> No</label>
+                    </div>
+                    <textarea id="doorHardwareDetails" name="doorHardwareDetails" rows="3" class="rounded-lg mt-2" placeholder="Closers, Pivots/Hinges, Locking Hardware, Push/Pull Sets, Thresholds, Weatherstripping, Access Control..."></textarea>
+                </div>
+                <div class="mb-4">
+                    <label><input type="checkbox" name="doorADAAccessibility" class="rounded"> ADA Compliance?</label>
+                </div>
+                <div class="mb-4">
+                    <label for="doorExitDevice">Exit Device Requirements:</label>
+                    <input type="text" id="doorExitDevice" name="doorExitDevice" class="rounded-lg" placeholder="e.g., Panic bar, push paddle">
+                </div>
+
+                <h3 class="subsection-title">E. General Glazing</h3>
+                <div class="mb-4">
+                    <label for="generalGlazingApplication">Application:</label>
+                    <input type="text" id="generalGlazingApplication" name="generalGlazingApplication" class="rounded-lg" placeholder="e.g., Interior Partitions, Railings, Skylights, Mirrors, Shower Doors, Specialty Glass">
+                </div>
+                <div class="mb-4">
+                    <label>Glass Type (General Glazing):</label>
+                    <input type="text" id="ggGlassType" name="ggGlassType" class="rounded-lg mb-2" placeholder="e.g., Annealed, Tempered, Laminated, Insulated, Wired, Patterned, Fire-Rated, Security Glass">
+                    <input type="text" id="ggGlassThickness" name="ggGlassThickness" class="rounded-lg mb-2" placeholder="Thickness">
+                    <input type="text" id="ggGlassColorTintPattern" name="ggGlassColorTintPattern" class="rounded-lg mb-2" placeholder="Color/Tint/Pattern">
+                    <input type="text" id="ggSpecialCoatings" name="ggSpecialCoatings" class="rounded-lg" placeholder="Special Coatings/Treatments (e.g., Anti-reflective, Privacy, Ceramic Frit)">
+                </div>
+                <div class="mb-4">
+                    <label for="ggFramingSupport">Framing/Support System:</label>
+                    <input type="text" id="ggFramingSupport" name="ggFramingSupport" class="rounded-lg" placeholder="e.g., Frameless, channels, standoffs, spider fittings, wood frames">
+                </div>
+                <div class="mb-4">
+                    <label for="ggHardware">Hardware:</label>
+                    <input type="text" id="ggHardware" name="ggHardware" class="rounded-lg" placeholder="e.g., Hinges, clamps, handles, railing posts">
+                </div>
+                <div class="mb-4">
+                    <label for="ggSealantsGaskets">Sealants/Gaskets:</label>
+                    <input type="text" id="ggSealantsGaskets" name="ggSealantsGaskets" class="rounded-lg" placeholder="Specify Type and Color">
+                </div>
+                <div class="mb-4">
+                    <label for="ggRegulatoryCompliance">Regulatory Compliance:</label>
+                    <input type="text" id="ggRegulatoryCompliance" name="ggRegulatoryCompliance" class="rounded-lg" placeholder="e.g., Safety Glazing codes, railing load requirements">
+                </div>
+            </div>
+
+            <!-- V. Performance & Regulatory Requirements -->
+            <div class="form-section">
+                <h2 class="section-title">V. Performance & Regulatory Requirements</h2>
+                <div class="mb-4">
+                    <label for="windLoadReq">Wind Load Requirements:</label>
+                    <input type="text" id="windLoadReq" name="windLoadReq" class="rounded-lg" placeholder="Specify PSF or other criteria">
+                </div>
+                <div class="mb-4">
+                    <label>Seismic Requirements?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="seismicReq" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="seismicReq" value="No" class="rounded-full"> No</label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="buildingCodeCompliance">Building Code Compliance:</label>
+                    <input type="text" id="buildingCodeCompliance" name="buildingCodeCompliance" class="rounded-lg" placeholder="Specify relevant codes, e.g., IBC, local amendments">
+                </div>
+                <div class="mb-4">
+                    <label for="energyCodeCompliance">Energy Code Compliance:</label>
+                    <input type="text" id="energyCodeCompliance" name="energyCodeCompliance" class="rounded-lg" placeholder="Specify relevant codes, e.g., IECC, ASHRAE 90.1">
+                </div>
+                <div class="mb-4">
+                    <label><input type="checkbox" name="adaCompliance" class="rounded"> Accessibility (ADA) Compliance?</label>
+                </div>
+                <div class="mb-4">
+                    <label><input type="checkbox" name="fireRatingReq" class="rounded"> Fire Rating Requirements (for specific areas)?</label>
+                </div>
+                <div class="mb-4">
+                    <label for="soundTransmissionReq">Sound Transmission Requirements (STC/OITC):</label>
+                    <input type="text" id="soundTransmissionReq" name="soundTransmissionReq" class="rounded-lg" placeholder="Specify values if applicable">
+                </div>
+                <div class="mb-4">
+                    <label>Water Penetration Testing (ASTM E1105, AAMA 501.2) Required?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="waterTestReq" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="waterTestReq" value="No" class="rounded-full"> No</label>
+                    </div>
+                    <div class="mt-2">
+                        <label>If Yes, testing protocol included in bid?</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="waterTestProtocol" value="Yes" class="rounded-full"> Yes</label>
+                            <label><input type="radio" name="waterTestProtocol" value="No" class="rounded-full"> No</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="thermalPerformance">Thermal Performance (U-Value, SHGC, VT):</label>
+                    <input type="text" id="thermalPerformance" name="thermalPerformance" class="rounded-lg" placeholder="Specify required values">
+                </div>
+                <div class="mb-4">
+                    <label>LEED or Green Building Certification Goals?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="leedGoals" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="leedGoals" value="No" class="rounded-full"> No</label>
+                    </div>
+                    <input type="text" id="leedRequirements" name="leedRequirements" class="rounded-lg mt-2" placeholder="If Yes, specific material/performance requirements?">
+                </div>
+            </div>
+
+            <!-- VI. Warranty & Post-Installation -->
+            <div class="form-section">
+                <h2 class="section-title">VI. Warranty & Post-Installation</h2>
+                <div class="mb-4">
+                    <label for="workmanshipWarranty">Workmanship Warranty:</label>
+                    <input type="text" id="workmanshipWarranty" name="workmanshipWarranty" class="rounded-lg" placeholder="e.g., 1 year, 2 years">
+                </div>
+                <div class="mb-4">
+                    <label for="materialWarranty">Material Warranty:</label>
+                    <input type="text" id="materialWarranty" name="materialWarranty" class="rounded-lg" placeholder="e.g., 5 years, 10 years, 20 years">
+                </div>
+                <div class="mb-4">
+                    <label for="specialWarranties">Special Warranties:</label>
+                    <textarea id="specialWarranties" name="specialWarranties" rows="2" class="rounded-lg" placeholder="e.g., Glass seal failure, finish degradation, specific product warranties"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label><input type="checkbox" name="maintenanceRecommendations" class="rounded"> Maintenance Requirements/Recommendations Provided by Glazier?</label>
+                </div>
+                <div class="mb-4">
+                    <label><input type="checkbox" name="cleaningProcedures" class="rounded"> Cleaning Procedures for Glass/Frames Provided?</label>
+                </div>
+                <div class="mb-4">
+                    <label for="closeoutDocuments">Close-out Documents Required:</label>
+                    <textarea id="closeoutDocuments" name="closeoutDocuments" rows="2" class="rounded-lg" placeholder="e.g., O&M Manuals, Warranties, Shop Drawings, Product Data"></textarea>
+                </div>
+            </div>
+
+            <!-- VII. Pricing & Costing Considerations -->
+            <div class="form-section">
+                <h2 class="section-title">VII. Pricing & Costing Considerations</h2>
+                <div class="mb-4">
+                    <label for="materialCosts">Material Costs:</label>
+                    <input type="text" id="materialCosts" name="materialCosts" class="rounded-lg" placeholder="Breakdown by system, glass type, hardware">
+                </div>
+                <div class="mb-4">
+                    <label for="laborCosts">Labor Costs:</label>
+                    <input type="text" id="laborCosts" name="laborCosts" class="rounded-lg" placeholder="Installation, fabrication, project management, drafting">
+                </div>
+                <div class="mb-4">
+                    <label for="equipmentRental">Equipment Rental:</label>
+                    <input type="text" id="equipmentRental" name="equipmentRental" class="rounded-lg" placeholder="Lifts, scaffolding, cranes">
+                </div>
+                <div class="mb-4">
+                    <label for="transportationCosts">Transportation Costs:</label>
+                    <input type="text" id="transportationCosts" name="transportationCosts" class="rounded-lg" placeholder="Delivery to site, special handling">
+                </div>
+                <div class="mb-4">
+                    <label for="engineeringDrawingCosts">Engineering/Shop Drawing Costs:</label>
+                    <input type="text" id="engineeringDrawingCosts" name="engineeringDrawingCosts" class="rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="permitFees">Permit Fees (If Glazier responsible):</label>
+                    <input type="text" id="permitFees" name="permitFees" class="rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="testingCosts">Testing Costs (Water penetration, air leakage, structural):</label>
+                    <input type="text" id="testingCosts" name="testingCosts" class="rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="supervisionOverhead">Supervision/Project Management Overhead:</label>
+                    <input type="text" id="supervisionOverhead" name="supervisionOverhead" class="rounded-lg">
+                </div>
+                <div class="mb-4">
+                    <label for="contingency">Contingency (Percentage for unforeseen issues):</label>
+                    <input type="text" id="contingency" name="contingency" class="rounded-lg" placeholder="e.g., 5%, 10%">
+                </div>
+                <div class="mb-4">
+                    <label for="profitMargin">Profit Margin:</label>
+                    <input type="text" id="profitMargin" name="profitMargin" class="rounded-lg" placeholder="e.g., 15%">
+                </div>
+                <div class="mb-4">
+                    <label for="paymentTerms">Payment Terms:</label>
+                    <input type="text" id="paymentTerms" name="paymentTerms" class="rounded-lg" placeholder="e.g., Deposit, progress payments, retainage">
+                </div>
+                <div class="mb-4">
+                    <label for="excludedItems">Excluded Items (Clearly Defined):</label>
+                    <textarea id="excludedItems" name="excludedItems" rows="3" class="rounded-lg" placeholder="e.g., Demolition, patching, painting by others, adjacent construction, electrical wiring for automatic doors, general contractor's scope items"></textarea>
+                </div>
+            </div>
+
+            <!-- VIII. Final Review -->
+            <div class="form-section">
+                <h2 class="section-title">VIII. Final Review</h2>
+                <div class="mb-4">
+                    <label>All sections completed?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="allSectionsCompleted" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="allSectionsCompleted" value="No" class="rounded-full"> No</label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="unansweredQuestions">Any unanswered questions or missing information? (List below)</label>
+                    <textarea id="unansweredQuestions" name="unansweredQuestions" rows="3" class="rounded-lg"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label>Bid proposal thorough and complete?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="bidProposalComplete" value="Yes" class="rounded-full"> Yes</label>
+                        <label><input type="radio" name="bidProposalComplete" value="No" class="rounded-full"> No</label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="risksIdentified">Risks Identified and Mitigated?</label>
+                    <textarea id="risksIdentified" name="risksIdentified" rows="2" class="rounded-lg" placeholder="e.g., long lead times, difficult access, complex designs"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="collaborationCoordination">Collaboration/Coordination required with other trades?</label>
+                    <textarea id="collaborationCoordination" name="collaborationCoordination" rows="2" class="rounded-lg" placeholder="e.g., Electrical, HVAC, Structural"></textarea>
+                </div>
+            </div>
+
+            <!-- IX. LLM-Powered Tools -->
+            <div class="form-section">
+                <h2 class="section-title">IX. LLM-Powered Tools</h2>
+                <div class="mb-4 text-center">
+                    <button type="button" id="generateScopeSummaryBtn" class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        ✨ Generate Scope Summary
+                    </button>
+                </div>
+                <div id="scopeSummaryOutput" class="hidden"></div>
+                <div id="loadingIndicator" class="loading-indicator hidden">
+                    <div class="loading-spinner"></div>
+                    Generating summary...
+                </div>
+            </div>
+
+            <div class="text-center mt-8">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                    Submit Form
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('generateScopeSummaryBtn').addEventListener('click', async () => {
+            const outputDiv = document.getElementById('scopeSummaryOutput');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            outputDiv.innerHTML = ''; // Clear previous output
+            outputDiv.classList.add('hidden');
+            loadingIndicator.classList.remove('hidden');
+
+            const form = document.getElementById('estimationForm');
+            const formData = new FormData(form);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                // Handle radio buttons and checkboxes
+                const existingValue = data[key];
+                if (existingValue) {
+                    if (Array.isArray(existingValue)) {
+                        existingValue.push(value);
+                    } else {
+                        data[key] = [existingValue, value];
+                    }
+                } else {
+                    data[key] = value;
+                }
+            }
+
+            // Manually collect checkbox states as they are not sent if unchecked
+            const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                if (!data.hasOwnProperty(checkbox.name)) {
+                    data[checkbox.name] = 'No'; // Default to No if not checked
+                } else if (checkbox.checked) {
+                    data[checkbox.name] = 'Yes';
+                } else {
+                    data[checkbox.name] = 'No';
+                }
+            });
+
+            // Construct prompt from collected data
+            let prompt = `Generate a concise glazing project scope summary based on the following details. Highlight the project type, building type, and key glazing systems (storefront, curtain wall, doors, general glazing) with their main characteristics (material, finish, glass type). Also, include any noted performance requirements (wind load, energy efficiency) or special conditions.\n\n`;
+
+            prompt += `Project Name: ${data.projectName || 'N/A'}\n`;
+            prompt += `Project Type: ${data.projectType || 'N/A'}\n`;
+            prompt += `Building Type: ${data.buildingType || 'N/A'}\n`;
+            prompt += `Project Address: ${data.projectStreet || ''}, ${data.projectCity || ''}, ${data.projectState || ''}, ${data.projectZip || ''}, ${data.projectCountry || ''}\n`;
+
+            if (data.sfSystemType || data.sfManufacturer || data.sfExtGlassType) {
+                prompt += `\nStorefront System:\n`;
+                if (data.sfSystemType) prompt += `  - Type: ${data.sfSystemType}\n`;
+                if (data.sfManufacturer) prompt += `  - Manufacturer: ${data.sfManufacturer}\n`;
+                if (data.sfFrameMaterial) prompt += `  - Frame Material: ${data.sfFrameMaterial}\n`;
+                if (data.sfFinishType) prompt += `  - Finish: ${data.sfFinishType} (${data.sfFinishColor || ''})\n`;
+                if (data.sfExtGlassType) prompt += `  - Exterior Glass: ${data.sfExtGlassType} (${data.sfExtGlassThickness || ''} thick, ${data.sfExtGlassColor || ''}, Low-E: ${data.sfExtGlassLowE || ''})\n`;
+                if (data.sfAcousticReq) prompt += `  - Acoustic Req: ${data.sfAcousticReq}\n`;
+                if (data.sfEnergyEfficiency) prompt += `  - Energy Eff: ${data.sfEnergyEfficiency}\n`;
+            }
+
+            if (data.cwSystemType || data.cwManufacturer || data.cwExtGlassType) {
+                prompt += `\nCurtain Wall System:\n`;
+                if (data.cwSystemType) prompt += `  - Type: ${data.cwSystemType}\n`;
+                if (data.cwManufacturer) prompt += `  - Manufacturer: ${data.cwManufacturer}\n`;
+                if (data.cwFrameMaterial) prompt += `  - Frame Material: ${data.cwFrameMaterial}\n`;
+                if (data.cwFinishType) prompt += `  - Finish: ${data.cwFinishType} (${data.cwFinishColor || ''})\n`;
+                if (data.cwExtGlassType) prompt += `  - Exterior Glass: ${data.cwExtGlassType} (${data.cwExtGlassThickness || ''} thick, ${data.cwExtGlassColor || ''}, Low-E: ${data.cwExtGlassLowE || ''})\n`;
+                if (data.cwAcousticReq) prompt += `  - Acoustic Req: ${data.cwAcousticReq}\n`;
+                if (data.cwEnergyEfficiency) prompt += `  - Energy Eff: ${data.cwEnergyEfficiency}\n`;
+            }
+
+            if (data.doorType || data.doorGlassType) {
+                prompt += `\nStorefront Doors:\n`;
+                if (data.doorType) prompt += `  - Type: ${data.doorType}\n`;
+                if (data.doorFrameMaterial) prompt += `  - Frame Material: ${data.doorFrameMaterial}\n`;
+                if (data.doorFinishType) prompt += `  - Finish: ${data.doorFinishType} (${data.doorFinishColor || ''})\n`;
+                if (data.doorGlassType) prompt += `  - Glass: ${data.doorGlassType} (${data.doorGlassThickness || ''} thick)\n`;
+                if (data.doorADAAccessibility === 'Yes') prompt += `  - ADA Compliant: Yes\n`;
+            }
+
+            if (data.generalGlazingApplication || data.ggGlassType) {
+                prompt += `\nGeneral Glazing:\n`;
+                if (data.generalGlazingApplication) prompt += `  - Application: ${data.generalGlazingApplication}\n`;
+                if (data.ggGlassType) prompt += `  - Glass Type: ${data.ggGlassType} (${data.ggGlassThickness || ''} thick, ${data.ggGlassColorTintPattern || ''})\n`;
+            }
+
+            if (data.windLoadReq || data.seismicReq === 'Yes' || data.energyCodeCompliance || data.soundTransmissionReq || data.waterTestReq === 'Yes' || data.leedGoals === 'Yes') {
+                prompt += `\nPerformance & Regulatory:\n`;
+                if (data.windLoadReq) prompt += `  - Wind Load: ${data.windLoadReq}\n`;
+                if (data.seismicReq === 'Yes') prompt += `  - Seismic Requirements: Yes\n`;
+                if (data.buildingCodeCompliance) prompt += `  - Building Code: ${data.buildingCodeCompliance}\n`;
+                if (data.energyCodeCompliance) prompt += `  - Energy Code: ${data.energyCodeCompliance}\n`;
+                if (data.soundTransmissionReq) prompt += `  - Sound Transmission: ${data.soundTransmissionReq}\n`;
+                if (data.waterTestReq === 'Yes') prompt += `  - Water Testing Required: Yes\n`;
+                if (data.leedGoals === 'Yes') prompt += `  - LEED/Green Building Goals: Yes (${data.leedRequirements || ''})\n`;
+            }
+
+            prompt += `\nPlease provide a concise summary, ideally in 2-3 paragraphs.`;
+
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Canvas will automatically provide an API key here.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    outputDiv.innerHTML = `<h3 class="subsection-title">Generated Scope Summary:</h3><p>${text}</p>`;
+                    outputDiv.classList.remove('hidden');
+                } else {
+                    outputDiv.innerHTML = `<h3 class="subsection-title" style="color:red;">Error: Could not generate summary.</h3><p>Unexpected API response structure.</p>`;
+                    outputDiv.classList.remove('hidden');
+                    console.error("Unexpected API response structure:", result);
+                }
+            } catch (error) {
+                outputDiv.innerHTML = `<h3 class="subsection-title" style="color:red;">Error: Could not generate summary.</h3><p>There was an error communicating with the Gemini API. Please try again later.</p>`;
+                outputDiv.classList.remove('hidden');
+                console.error("Error calling Gemini API:", error);
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
