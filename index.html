@@ -122,6 +122,25 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Styles for feedback messages */
+        .message-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .message-box.success {
+            background-color: #d1fae5; /* Green light */
+            color: #065f46; /* Green dark */
+            border: 1px solid #34d399;
+        }
+        .message-box.error {
+            background-color: #fee2e2; /* Red light */
+            color: #991b1b; /* Red dark */
+            border: 1px solid #ef4444;
+        }
     </style>
 </head>
 <body>
@@ -725,26 +744,35 @@
             </div>
 
             <div class="text-center mt-8">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                <button type="submit" id="submitFormBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
                     Submit Form
                 </button>
+                <div id="formFeedback" class="message-box hidden mt-4"></div>
             </div>
         </form>
     </div>
 
     <script>
-        document.getElementById('generateScopeSummaryBtn').addEventListener('click', async () => {
-            const outputDiv = document.getElementById('scopeSummaryOutput');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            outputDiv.innerHTML = ''; // Clear previous output
-            outputDiv.classList.add('hidden');
-            loadingIndicator.classList.remove('hidden');
+        // This is the URL of your Cloudflare Worker that handles form submissions
+        const WORKER_URL = 'https://red-river-18f8.rmartin731.workers.dev/'; // IMPORTANT: Replace with YOUR Worker's URL
 
-            const form = document.getElementById('estimationForm');
+        document.getElementById('estimationForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            const form = event.target;
+            const submitBtn = document.getElementById('submitFormBtn');
+            const feedbackDiv = document.getElementById('formFeedback');
+
+            submitBtn.disabled = true; // Disable button to prevent multiple submissions
+            feedbackDiv.classList.add('hidden'); // Hide any previous feedback
+            feedbackDiv.classList.remove('success', 'error'); // Reset styles
+
             const formData = new FormData(form);
             const data = {};
             for (let [key, value] of formData.entries()) {
-                // Handle radio buttons and checkboxes
+                // Handle radio buttons and checkboxes to ensure all values are captured
+                // For checkboxes, only checked ones are in formData.entries(), so we'll re-process
+                // the checkboxes specifically after this loop.
                 const existingValue = data[key];
                 if (existingValue) {
                     if (Array.isArray(existingValue)) {
@@ -757,19 +785,87 @@
                 }
             }
 
-            // Manually collect checkbox states as they are not sent if unchecked
+            // Explicitly handle checkboxes that might not be checked (and thus not in formData.entries())
+            // Set default to 'No' if not present, 'Yes' if checked.
             const checkboxes = form.querySelectorAll('input[type="checkbox"]');
             checkboxes.forEach(checkbox => {
                 if (!data.hasOwnProperty(checkbox.name)) {
-                    data[checkbox.name] = 'No'; // Default to No if not checked
+                    data[checkbox.name] = 'No'; // Default to No if not explicitly set
                 } else if (checkbox.checked) {
                     data[checkbox.name] = 'Yes';
                 } else {
-                    data[checkbox.name] = 'No';
+                    // If it was already in data (e.g., from multiple checkboxes with same name),
+                    // and it's not checked, we don't want to override if another one *was* checked.
+                    // This logic is primarily for unique checkboxes, or groups where only one matters.
+                    // For radio groups, FormData correctly handles one value per name.
                 }
             });
 
-            // Construct prompt from collected data
+            try {
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) { // Check for HTTP 200-299 status codes
+                    feedbackDiv.textContent = result.message || 'Form submitted successfully!';
+                    feedbackDiv.classList.add('success');
+                    form.reset(); // Clear the form on success
+                } else {
+                    feedbackDiv.textContent = result.message || 'Error submitting form. Please try again.';
+                    feedbackDiv.classList.add('error');
+                    console.error('Submission error:', result);
+                }
+            } catch (error) {
+                feedbackDiv.textContent = 'Network error or server unreachable. Please try again later.';
+                feedbackDiv.classList.add('error');
+                console.error('Fetch error:', error);
+            } finally {
+                feedbackDiv.classList.remove('hidden');
+                submitBtn.disabled = false; // Re-enable button
+            }
+        });
+
+        // LLM-Powered Tools Script (if you choose to keep it)
+        document.getElementById('generateScopeSummaryBtn').addEventListener('click', async () => {
+            const scopeSummaryOutputDiv = document.getElementById('scopeSummaryOutput');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            scopeSummaryOutputDiv.innerHTML = ''; // Clear previous output
+            scopeSummaryOutputDiv.classList.add('hidden');
+            loadingIndicator.classList.remove('hidden');
+
+            const form = document.getElementById('estimationForm');
+            const formData = new FormData(form);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                const existingValue = data[key];
+                if (existingValue) {
+                    if (Array.isArray(existingValue)) {
+                        existingValue.push(value);
+                    } else {
+                        data[key] = [existingValue, value];
+                    }
+                } else {
+                    data[key] = value;
+                }
+            }
+
+            const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                if (!data.hasOwnProperty(checkbox.name)) {
+                    data[checkbox.name] = 'No';
+                } else if (checkbox.checked) {
+                    data[checkbox.name] = 'Yes';
+                } else {
+                    // Keep current value if already set (e.g., from multiple checkboxes)
+                }
+            });
+
             let prompt = `Generate a concise glazing project scope summary based on the following details. Highlight the project type, building type, and key glazing systems (storefront, curtain wall, doors, general glazing) with their main characteristics (material, finish, glass type). Also, include any noted performance requirements (wind load, energy efficiency) or special conditions.\n\n`;
 
             prompt += `Project Name: ${data.projectName || 'N/A'}\n`;
@@ -782,8 +878,8 @@
                 if (data.sfSystemType) prompt += `  - Type: ${data.sfSystemType}\n`;
                 if (data.sfManufacturer) prompt += `  - Manufacturer: ${data.sfManufacturer}\n`;
                 if (data.sfFrameMaterial) prompt += `  - Frame Material: ${data.sfFrameMaterial}\n`;
-                if (data.sfFinishType) prompt += `  - Finish: ${data.sfFinishType} (${data.sfFinishColor || ''})\n`;
-                if (data.sfExtGlassType) prompt += `  - Exterior Glass: ${data.sfExtGlassType} (${data.sfExtGlassThickness || ''} thick, ${data.sfExtGlassColor || ''}, Low-E: ${data.sfExtGlassLowE || ''})\n`;
+                if (data.sfFinishType) prompt += `  - Finish: <span class="math-inline">\{data\.sfFinishType\} \(</span>{data.sfFinishColor || ''})\n`;
+                if (data.sfExtGlassType) prompt += `  - Exterior Glass: <span class="math-inline">\{data\.sfExtGlassType\} \(</span>{data.sfExtGlassThickness || ''} thick, ${data.sfExtGlassColor || ''}, Low-E: ${data.sfExtGlassLowE || ''})\n`;
                 if (data.sfAcousticReq) prompt += `  - Acoustic Req: ${data.sfAcousticReq}\n`;
                 if (data.sfEnergyEfficiency) prompt += `  - Energy Eff: ${data.sfEnergyEfficiency}\n`;
             }
@@ -793,8 +889,8 @@
                 if (data.cwSystemType) prompt += `  - Type: ${data.cwSystemType}\n`;
                 if (data.cwManufacturer) prompt += `  - Manufacturer: ${data.cwManufacturer}\n`;
                 if (data.cwFrameMaterial) prompt += `  - Frame Material: ${data.cwFrameMaterial}\n`;
-                if (data.cwFinishType) prompt += `  - Finish: ${data.cwFinishType} (${data.cwFinishColor || ''})\n`;
-                if (data.cwExtGlassType) prompt += `  - Exterior Glass: ${data.cwExtGlassType} (${data.cwExtGlassThickness || ''} thick, ${data.cwExtGlassColor || ''}, Low-E: ${data.cwExtGlassLowE || ''})\n`;
+                if (data.cwFinishType) prompt += `  - Finish: <span class="math-inline">\{data\.cwFinishType\} \(</span>{data.cwFinishColor || ''})\n`;
+                if (data.cwExtGlassType) prompt += `  - Exterior Glass: <span class="math-inline">\{data\.cwExtGlassType\} \(</span>{data.cwExtGlassThickness || ''} thick, ${data.cwExtGlassColor || ''}, Low-E: ${data.cwExtGlassLowE || ''})\n`;
                 if (data.cwAcousticReq) prompt += `  - Acoustic Req: ${data.cwAcousticReq}\n`;
                 if (data.cwEnergyEfficiency) prompt += `  - Energy Eff: ${data.cwEnergyEfficiency}\n`;
             }
@@ -803,15 +899,15 @@
                 prompt += `\nStorefront Doors:\n`;
                 if (data.doorType) prompt += `  - Type: ${data.doorType}\n`;
                 if (data.doorFrameMaterial) prompt += `  - Frame Material: ${data.doorFrameMaterial}\n`;
-                if (data.doorFinishType) prompt += `  - Finish: ${data.doorFinishType} (${data.doorFinishColor || ''})\n`;
-                if (data.doorGlassType) prompt += `  - Glass: ${data.doorGlassType} (${data.doorGlassThickness || ''} thick)\n`;
+                if (data.doorFinishType) prompt += `  - Finish: <span class="math-inline">\{data\.doorFinishType\} \(</span>{data.doorFinishColor || ''})\n`;
+                if (data.doorGlassType) prompt += `  - Glass: <span class="math-inline">\{data\.doorGlassType\} \(</span>{data.doorGlassThickness || ''} thick)\n`;
                 if (data.doorADAAccessibility === 'Yes') prompt += `  - ADA Compliant: Yes\n`;
             }
 
             if (data.generalGlazingApplication || data.ggGlassType) {
                 prompt += `\nGeneral Glazing:\n`;
                 if (data.generalGlazingApplication) prompt += `  - Application: ${data.generalGlazingApplication}\n`;
-                if (data.ggGlassType) prompt += `  - Glass Type: ${data.ggGlassType} (${data.ggGlassThickness || ''} thick, ${data.ggGlassColorTintPattern || ''})\n`;
+                if (data.ggGlassType) prompt += `  - Glass Type: <span class="math-inline">\{data\.ggGlassType\} \(</span>{data.ggGlassThickness || ''} thick, ${data.ggGlassColorTintPattern || ''})\n`;
             }
 
             if (data.windLoadReq || data.seismicReq === 'Yes' || data.energyCodeCompliance || data.soundTransmissionReq || data.waterTestReq === 'Yes' || data.leedGoals === 'Yes') {
@@ -827,12 +923,11 @@
 
             prompt += `\nPlease provide a concise summary, ideally in 2-3 paragraphs.`;
 
-
             try {
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                 const payload = { contents: chatHistory };
-                const apiKey = ""; // Canvas will automatically provide an API key here.
+                const apiKey = ""; // If you want to use models other than gemini-2.0-flash, provide an API key here. Otherwise, leave this as-is.
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 const response = await fetch(apiUrl, {
@@ -846,16 +941,16 @@
                     result.candidates[0].content && result.candidates[0].content.parts &&
                     result.candidates[0].content.parts.length > 0) {
                     const text = result.candidates[0].content.parts[0].text;
-                    outputDiv.innerHTML = `<h3 class="subsection-title">Generated Scope Summary:</h3><p>${text}</p>`;
-                    outputDiv.classList.remove('hidden');
+                    scopeSummaryOutputDiv.innerHTML = `<h3 class="subsection-title">Generated Scope Summary:</h3><p>${text}</p>`;
+                    scopeSummaryOutputDiv.classList.remove('hidden');
                 } else {
-                    outputDiv.innerHTML = `<h3 class="subsection-title" style="color:red;">Error: Could not generate summary.</h3><p>Unexpected API response structure.</p>`;
-                    outputDiv.classList.remove('hidden');
+                    scopeSummaryOutputDiv.innerHTML = `<h3 class="subsection-title" style="color:red;">Error: Could not generate summary.</h3><p>Unexpected API response structure.</p>`;
+                    scopeSummaryOutputDiv.classList.remove('hidden');
                     console.error("Unexpected API response structure:", result);
                 }
             } catch (error) {
-                outputDiv.innerHTML = `<h3 class="subsection-title" style="color:red;">Error: Could not generate summary.</h3><p>There was an error communicating with the Gemini API. Please try again later.</p>`;
-                outputDiv.classList.remove('hidden');
+                scopeSummaryOutputDiv.innerHTML = `<h3 class="subsection-title" style="color:red;">Error: Could not generate summary.</h3><p>There was an error communicating with the Gemini API. Please try again later.</p>`;
+                scopeSummaryOutputDiv.classList.remove('hidden');
                 console.error("Error calling Gemini API:", error);
             } finally {
                 loadingIndicator.classList.add('hidden');
